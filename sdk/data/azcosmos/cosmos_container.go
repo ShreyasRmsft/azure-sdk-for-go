@@ -317,6 +317,43 @@ func (c *ContainerClient) ReplaceItem(
 	return newItemResponse(azResponse)
 }
 
+func (c *ContainerClient) ExecuteStoredProcedure(
+	ctx context.Context,
+	partitionKey PartitionKey,
+	storedProcedureName string,
+	parameters []any) (StoredProcedureResponse, error) {
+	h := headerOptionsOverride{
+		partitionKey: &partitionKey,
+	}
+
+	// TODO: Accept and honor stored proc execute options
+
+	operationContext := pipelineRequestOptions{
+		resourceType:          resourceTypeStoredProcedure,
+		resourceAddress:       createLink(c.link, pathSegmentStoredProcedure, storedProcedureName),
+		headerOptionsOverride: &h,
+	}
+
+	path, err := generatePathForNameBased(resourceTypeStoredProcedure, operationContext.resourceAddress, false)
+	if err != nil {
+		return StoredProcedureResponse{}, err
+	}
+
+	azResponse, err := c.database.client.sendPostRequest(
+		path,
+		ctx,
+		parameters,
+		operationContext,
+		nil,
+		nil,
+	)
+	if err != nil {
+		return StoredProcedureResponse{}, err
+	}
+
+	return newStoredProcedureResponse(azResponse)
+}
+
 // ReadItem reads an item in a Cosmos container.
 // ctx - The context for the request.
 // partitionKey - The partition key for the item.
