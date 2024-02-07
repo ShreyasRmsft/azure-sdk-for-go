@@ -317,16 +317,21 @@ func (c *ContainerClient) ReplaceItem(
 	return newItemResponse(azResponse)
 }
 
+// ExecuteStoredProcedure executes a stored procedure in a Cosmos container.
+// ctx - The context for the request.
+// partitionKey - The partition key of the item to replace.
+// storedProcedureName - The id of the stored procedure to execute.
+// parameters - The parameters for the stored procedure.
+// o - Options for the operation.
 func (c *ContainerClient) ExecuteStoredProcedure(
 	ctx context.Context,
 	partitionKey PartitionKey,
 	storedProcedureName string,
-	parameters []any) (StoredProcedureResponse, error) {
+	parameters []any,
+	o *StoredProcedureRequestOptions) (StoredProcedureResponse, error) {
 	h := headerOptionsOverride{
 		partitionKey: &partitionKey,
 	}
-
-	// TODO: Accept and honor stored proc execute options
 
 	operationContext := pipelineRequestOptions{
 		resourceType:          resourceTypeStoredProcedure,
@@ -344,7 +349,7 @@ func (c *ContainerClient) ExecuteStoredProcedure(
 		ctx,
 		parameters,
 		operationContext,
-		nil,
+		o,
 		nil,
 	)
 	if err != nil {
