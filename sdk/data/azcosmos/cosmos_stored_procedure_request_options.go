@@ -36,7 +36,7 @@ func (options *StoredProcedureRequestOptions) toHeaders() *map[string]string {
 	}
 
 	if options.EnableScriptLogging {
-		headers["x-ms-documentdb-script-enable-logging"] = "true"
+		headers[cosmosHeaderScriptEnableLogging] = "true"
 	}
 
 	return &headers
